@@ -1,5 +1,5 @@
 use clap::Parser;
-mod valueEmptyCheck;
+mod value_empty_check;
 
 #[derive(Parser)]
 struct Cli {
@@ -17,7 +17,7 @@ fn make_request(type_reques:&str, url:&str)->String {
         .text() 
         .unwrap();
     
-    let check_value_empty = valueEmptyCheck::check_if_value_empty::check_if_value_empty([type_reques,url]);
+    let check_value_empty = value_empty_check::check_if_value_empty::check_if_value_empty([type_reques,url]);
     
     if check_value_empty != "None" {
         body = "check_value_empty".to_owned();

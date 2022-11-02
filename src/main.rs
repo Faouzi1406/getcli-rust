@@ -1,13 +1,19 @@
-use clap::Parser;
-mod valueEmptyCheck;
+use reqwest::blocking::Client;
+use clap::Parser; 
+mod value_empty_check;
+mod save_response;
+mod jsonstring_to_hashmap;
 
 #[derive(Parser)]
 struct Cli {
     typeofrequest: String,
     url: String,
+    body:Option<String>, 
+    save_response:Option<bool>
 }
 
-fn make_request(type_reques:&str, url:&str)->String {
+
+fn make_request(type_reques:&str, url:&str, body_request:Option<String>, )->String {
  
     let mut body:String =  "string".to_owned();
 
@@ -16,8 +22,10 @@ fn make_request(type_reques:&str, url:&str)->String {
         .unwrap()
         .text() 
         .unwrap();
-    
-    let check_value_empty = valueEmptyCheck::check_if_value_empty::check_if_value_empty([type_reques,url]);
+        
+  
+
+    let check_value_empty = value_empty_check::check_if_value_empty::check_if_value_empty([type_reques,url]);
     
     if check_value_empty != "None" {
         body = "check_value_empty".to_owned();
@@ -26,10 +34,62 @@ fn make_request(type_reques:&str, url:&str)->String {
     if body.is_empty() {
         body = "Request response body was empty".to_owned();
     }
-    
-
-
     }
+    
+    //TODO: Handle saving response in json file.
+    if type_reques == "post" {
+        
+        if body_request == None {
+            let client  = Client::new();
+            let request = client.post(url).send();
+           
+            let _request = match request{
+                Ok(content) => content,
+                Err(error) => panic!("Could not make the post request to url: {}, Error: {}", url, error)  
+            };
+
+            let req_body= _request.text();
+
+            let _responsebody = match req_body{
+                Ok(content) =>  {body = content},
+                Err(error) => panic!("There was and error {:?} ", error)
+                
+            };
+
+
+        }
+
+
+        //TODO: Hanlde request body if different from none. 
+        //Currently only supports json
+        //Check if body_request != none if so we can make a post request with the  body
+        else {
+                    
+                let mut json_string_test= jsonstring_to_hashmap::json_hasmap::JsonString{
+            json_string: body_request.unwrap()
+        };
+            
+                let value  = json_string_test.parse();
+            let client  = Client::new();
+            let request = client.post(url)
+                .json(&value)
+                .send();
+            
+            let handle_error_request = match request {
+                Ok(content) => content,
+                Err(error) => panic!("There was and error with making the post request, error: {:?}", error)
+                
+            };
+             
+            let body_text  = handle_error_request.text();
+
+            let _body_response_text = match body_text{
+                Ok(content) => {body = content},
+                Err(error) => panic!("There was and error with making the post request, error: {:?}", error)
+            };
+        }
+    }
+
     format!("Body: {}", body)
 }
 
@@ -37,7 +97,7 @@ fn make_request(type_reques:&str, url:&str)->String {
 fn main() {
        let args = Cli::parse();
 
-       let body = make_request(&args.typeofrequest,&args.url);
-
-       println!("Body: {}" ,body)
+       let _body = make_request(&args.typeofrequest,&args.url, args.body);
+        
+       print!("Response body {:?}", _body)
 }       

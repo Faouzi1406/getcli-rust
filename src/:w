@@ -1,0 +1,25 @@
+pub mod json_hasmap {
+
+    pub struct JsonString{
+        pub json_string:String, 
+    }
+
+    impl JsonString{
+    
+        pub fn parse(&mut self){
+
+            let mut amounttocomma = 0;
+
+            for charc in self.json_string.chars() { 
+                if charc.to_string() == "," {
+                    //Here we have to remove everything that came before the , and move parse what
+                    //comes after it    
+                    amounttocomma 
+
+                }
+            }
+
+        }
+        
+    }
+} 

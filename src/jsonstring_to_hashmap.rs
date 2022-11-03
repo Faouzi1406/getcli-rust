@@ -49,11 +49,10 @@ pub mod json_hasmap {
                 }
                 }
                 }
-                
-                if c.to_string() == ":"{
+                 
+                if c.to_string() == ":" {
                     value_current = "b";
                 }
-            
                 position = position +1;
             }
 

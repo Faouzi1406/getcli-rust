@@ -1,5 +1,5 @@
 use reqwest::blocking::Client;
-use clap::Parser; 
+use clap::{Parser, error}; 
 mod value_empty_check;
 mod save_response;
 mod jsonstring_to_hashmap;
@@ -64,9 +64,10 @@ fn make_request(type_reques:&str, url:&str, body_request:Option<String>, )->Stri
         //Currently only supports json
         //Check if body_request != none if so we can make a post request with the  body
         else {
+            let body_request_clone = body_request.clone();
                     
                 let mut json_string_test= jsonstring_to_hashmap::json_hasmap::JsonString{
-            json_string: body_request.unwrap()
+            json_string: body_request_clone.unwrap()
         };
             
                 let value  = json_string_test.parse();
@@ -88,6 +89,25 @@ fn make_request(type_reques:&str, url:&str, body_request:Option<String>, )->Stri
                 Err(error) => panic!("There was and error with making the post request, error: {:?}", error)
             };
         }
+    }
+    
+    if type_reques == "delete" && body_request == None{
+        let client = Client::new();
+        let request = client.delete(url).send();
+
+        let request_error = match request {
+            Ok(content) => content,
+            Err(error) => panic!("There was and error making the DELETE request, ERROR: {}", error)
+            
+        };
+        
+        let get_body_text = request_error.text();
+        
+        let set_body =  match get_body_text {
+            Ok(content) => {body = content},
+            Err(error) => panic!("There was and error with the delete response body, error: {}", error)
+        };
+
     }
 
     format!("Body: {}", body)

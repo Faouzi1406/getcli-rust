@@ -103,12 +103,42 @@ fn make_request(type_reques:&str, url:&str, body_request:Option<String>, )->Stri
         
         let get_body_text = request_error.text();
         
-        let set_body =  match get_body_text {
+        match get_body_text {
             Ok(content) => {body = content},
             Err(error) => panic!("There was and error with the delete response body, error: {}", error)
         };
 
     }
+        
+    
+    if type_reques == "delete" && body_request !=None{
+        let clone_body_req = body_request.clone();
+            let mut jsonstring = jsonstring_to_hashmap::json_hasmap::JsonString{
+                json_string:  clone_body_req.unwrap()
+            };
+
+            let value = jsonstring.parse();
+
+            let client = Client::new();
+
+            let req = client.delete(url)
+                .json(&value)
+                .send();
+
+            let handle_error_request = match req {
+                Ok(content) => content,
+                Err(error) =>  panic!("There was and error {}", error)
+            };
+            
+            let body_content  =  handle_error_request.text();
+
+            match body_content {
+                Ok(content) => {body = content},
+                Err(error) => panic!("There was and error with the delete repsonse body, error: {}", error)
+            };
+
+}
+
 
     format!("Body: {}", body)
 }

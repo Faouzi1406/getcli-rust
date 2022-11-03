@@ -1,4 +1,4 @@
-#Request CLI
+# Request CLI
 
 **About**
 This is a project I made to learn rust and how rust works.

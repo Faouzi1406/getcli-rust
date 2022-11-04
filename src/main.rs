@@ -1,3 +1,4 @@
+use prettyprint::{PrettyPrint, PrettyPrinter};
 use reqwest::blocking::Client;
 use clap::Parser;
 use save_response::save_to_file::save_response;
@@ -140,17 +141,18 @@ fn make_request(type_reques:&str, url:&str, body_request:Option<String>)->String
 fn main() {
        let args = Cli::parse();
 
-    
-       let _body = make_request(&args.typeofrequest,&args.url, args.body);
+       let body = make_request(&args.typeofrequest,&args.url, args.body);
         
-       let save_body = save_response(&_body);
-        match save_body {
-           Some(value) => {
-            if value {
-             let save_body = save_response(&_body).expect("Error could not save file");
-            }},
-            None => ()
-           }
-       
+       let save_body = save_response(&body).is_ok();
 
+       if !save_body {
+           println!("Couldn't save file");
+       }
+       let printer = PrettyPrinter::default()
+           .language("json")
+           .build() 
+           .unwrap();
+
+        printer.string(body).expect("Couldn't print the body");
        }       
+

@@ -56,3 +56,10 @@ example:
 cargo run "post" "http://localhost:8080/post" '"name": "value", "newname":"new value"'
 ````
 
+**Saving responses**
+You can also save the web responses you get to a json file
+example: 
+````bash
+cargo run "get" "http://localhost:8080/post" None true
+````
+true is for saving the file

@@ -12,7 +12,6 @@ pub mod json_hasmap {
 
         pub fn parse(&mut self) -> HashMap<&str, &str>{
         
-            
             let  mut map:HashMap<&str, &str> =  HashMap::new();
             let  mut current_value = 0;
             let  mut value_a:&str = "error";

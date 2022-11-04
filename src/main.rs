@@ -1,20 +1,19 @@
 use reqwest::blocking::Client;
-use clap::{Parser, error}; 
+use clap::Parser;
+use save_response::save_to_file::save_response;
 mod value_empty_check;
-mod save_response;
 mod jsonstring_to_hashmap;
-
+mod save_response;
 #[derive(Parser)]
 struct Cli {
     typeofrequest: String,
     url: String,
     body:Option<String>, 
-    save_response:Option<bool>
+    save_resp:Option<bool>
 }
 
 
-fn make_request(type_reques:&str, url:&str, body_request:Option<String>, )->String {
- 
+fn make_request(type_reques:&str, url:&str, body_request:Option<String>)->String {
     let mut body:String =  "string".to_owned();
 
     if  type_reques ==  "get" {
@@ -22,21 +21,15 @@ fn make_request(type_reques:&str, url:&str, body_request:Option<String>, )->Stri
         .unwrap()
         .text() 
         .unwrap();
-        
-  
-
-    let check_value_empty = value_empty_check::check_if_value_empty::check_if_value_empty([type_reques,url]);
     
-    if check_value_empty != "None" {
-        body = "check_value_empty".to_owned();
-    }
+ 
 
     if body.is_empty() {
         body = "Request response body was empty".to_owned();
     }
     }
     
-    //TODO: Handle saving response in json file.
+    
     if type_reques == "post" {
         
         if body_request == None {
@@ -147,7 +140,17 @@ fn make_request(type_reques:&str, url:&str, body_request:Option<String>, )->Stri
 fn main() {
        let args = Cli::parse();
 
+    
        let _body = make_request(&args.typeofrequest,&args.url, args.body);
         
-       print!("Response body {:?}", _body)
-}       
+       let save_body = save_response(&_body);
+        match save_body {
+           Some(value) => {
+            if value {
+             let save_body = save_response(&_body).expect("Error could not save file");
+            }},
+            None => ()
+           }
+       
+
+       }       

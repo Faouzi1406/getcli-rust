@@ -1,4 +1,4 @@
-use prettyprint::{PrettyPrint, PrettyPrinter};
+use prettyprint::PrettyPrinter;
 use reqwest::blocking::Client;
 use clap::Parser;
 use save_response::save_to_file::save_response;
@@ -6,6 +6,7 @@ mod value_empty_check;
 mod jsonstring_to_hashmap;
 mod save_response;
 #[derive(Parser)]
+
 struct Cli {
     typeofrequest: String,
     url: String,
@@ -13,17 +14,22 @@ struct Cli {
     save_resp:Option<bool>
 }
 
+struct ReturnBodyType{
+    body: String,
+    type_body: String
+}
 
-fn make_request(type_reques:&str, url:&str, body_request:Option<String>)->String {
+
+fn make_request(type_reques:&str, url:&str, body_request:Option<String>) -> ReturnBodyType {
+
     let mut body:String =  "string".to_owned();
+    let mut type_body:String = "null".to_owned();
 
     if  type_reques ==  "get" {
     body  = reqwest::blocking::get(url) 
         .unwrap()
         .text() 
         .unwrap();
-    
- 
 
     if body.is_empty() {
         body = "Request response body was empty".to_owned();
@@ -61,7 +67,7 @@ fn make_request(type_reques:&str, url:&str, body_request:Option<String>)->String
             let body_request_clone = body_request.clone();
                     
                 let mut json_string_test= jsonstring_to_hashmap::json_hasmap::JsonString{
-            json_string: body_request_clone.unwrap()
+                json_string: body_request_clone.unwrap()
         };
             
                 let value  = json_string_test.parse();
@@ -133,8 +139,7 @@ fn make_request(type_reques:&str, url:&str, body_request:Option<String>)->String
 
 }
 
-
-    format!("Body: {}", body)
+    return ReturnBodyType { body: body, type_body: "info".to_owned() };
 }
 
 
@@ -143,7 +148,7 @@ fn main() {
 
        let body = make_request(&args.typeofrequest,&args.url, args.body);
         
-       let save_body = save_response(&body).is_ok();
+       let save_body = save_response(&body.body).is_ok();
 
        if !save_body {
            println!("Couldn't save file");
@@ -153,6 +158,6 @@ fn main() {
            .build() 
            .unwrap();
 
-        printer.string(body).expect("Couldn't print the body");
+        printer.string(body.body).expect("Couldn't print the body");
        }       
 

@@ -31,8 +31,6 @@ pub mod json_hasmap {
 
         pub fn parse(&mut self) -> HashMap<String, String>{
             let mut  hashed_map:HashMap<String, String>= HashMap::new();
-
-
             let string_to_lines = self.json_string.replace(",", "\n");
             
             for line  in string_to_lines.lines(){

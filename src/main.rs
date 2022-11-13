@@ -5,8 +5,8 @@ use save_response::save_to_file::save_response;
 mod value_empty_check;
 mod jsonstring_to_hashmap;
 mod save_response;
-#[derive(Parser)]
 
+#[derive(Parser)]
 struct Cli {
     typeofrequest: String,
     url: String,
@@ -59,10 +59,6 @@ fn make_request(type_reques:&str, url:&str, body_request:Option<String>) -> Retu
 
         }
 
-
-        //TODO: Hanlde request body if different from none. 
-        //Currently only supports json
-        //Check if body_request != none if so we can make a post request with the  body
         else {
             let body_request_clone = body_request.clone();
                     
@@ -138,22 +134,31 @@ fn make_request(type_reques:&str, url:&str, body_request:Option<String>) -> Retu
             };
 
 }
+    
+    if type_reques != "delete" && type_reques != "post" && type_reques != "get" {
+        panic!("request type: {} is not supported please read the documentation for suported types:https://github.com/Faouzi1406/getcli-rust ", type_reques);
+    }
 
     return ReturnBodyType { body: body, type_body: "info".to_owned() };
 }
-
 
 fn main() {
        let args = Cli::parse();
 
        let body = make_request(&args.typeofrequest,&args.url, args.body);
-        
+    
+        match args.save_resp {
+           Some(value) => {
+       if  value {
        let save_body = save_response(&body.body).is_ok();
-
        if !save_body {
            println!("Couldn't save file");
-       }
-       let printer = PrettyPrinter::default()
+       }}},
+           None => () 
+        }
+
+
+      let printer = PrettyPrinter::default()
            .language("json")
            .build() 
            .unwrap();
